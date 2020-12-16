@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "dependencies": {
+    "docker-lambda": "^0.15.3"
+  }
+}
