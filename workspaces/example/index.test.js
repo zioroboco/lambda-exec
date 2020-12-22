@@ -1,14 +1,14 @@
 const { run } = require("lambda-exec")
 
-let result
+let response
 
 beforeAll(async () => {
-  result = await run({
+  response = await run({
     project: __dirname,
     event: { body: "heart" },
   })
 })
 
-it(`exits zero`, async () => {
-  expect(result.exitCode).toBe(0)
+it(`returns stuff`, async () => {
+  expect(JSON.parse(response)).toMatchObject({ output: "❤️" })
 })

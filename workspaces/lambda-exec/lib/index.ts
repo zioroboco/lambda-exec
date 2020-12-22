@@ -46,9 +46,9 @@ export const run = async (options?: Options) => {
     JSON.stringify(event),
   ]
 
-  const result = await execa("echo", args, { cwd: taskdir })
+  const result = await execa("docker", args, { cwd: taskdir })
 
   cleanup()
 
-  return result
+  return JSON.parse(result.stdout)
 }
