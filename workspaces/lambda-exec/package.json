@@ -7,7 +7,5 @@
     "esbuild": "^0.8.26",
     "execa": "^5.0.0"
   },
-  "devDependencies": {
-    "typescript": "^4.1.3"
   }
 }
