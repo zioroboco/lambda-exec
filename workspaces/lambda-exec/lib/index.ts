@@ -1,4 +1,5 @@
 import * as execa from "execa"
+import { dir } from "tmp-promise"
 import { build } from "esbuild"
 import { resolve } from "path"
 
@@ -18,7 +19,10 @@ export const run = async (options?: Options) => {
     ...(options ?? {}),
   }
 
-  const taskdir = resolve(project, "build")
+  const { path: taskdir, cleanup } = await dir({
+    prefix: "lambda-exec",
+    unsafeCleanup: true,
+  })
 
   await build({
     entryPoints: [resolve(project, "src/index.ts")],
@@ -42,7 +46,9 @@ export const run = async (options?: Options) => {
     JSON.stringify(event),
   ]
 
-  const result = await execa("echo", args, { cwd: project })
+  const result = await execa("echo", args, { cwd: taskdir })
+
+  cleanup()
 
   return result
 }
