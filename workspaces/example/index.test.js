@@ -1,4 +1,4 @@
-const path = require("path")
+const { runSync } = require("lambda-exec")
 const webpack = require("webpack")
 
 let result
@@ -8,9 +8,9 @@ const compile = () => {
     const compiler = webpack(require("./webpack.config"))
     compiler.run((err, stats) => {
       if (err || stats.hasErrors()) {
-        console.error("💥")
+        console.error("💥 ", stats.toString())
       } else {
-        console.log("🛎")
+        console.log("🛎 ", stats.toString())
       }
       resolve()
     })
@@ -20,13 +20,9 @@ const compile = () => {
 beforeAll(async () => {
   await compile()
 
-  result = require("docker-lambda")({
-    event: { body: "heart" },
-    taskDir: path.resolve(__dirname, "build"),
-    dockerImage: "lambci/lambda:nodejs12.x",
-  })
+  result = runSync({ event: { body: "heart" } })
 })
 
-it(`works`, async () => {
-  expect(JSON.parse(result)).toMatchObject({ output: "❤️" })
+it(`exits zero`, async () => {
+  expect(result.exitCode).toBe(0)
 })
