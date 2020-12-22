@@ -5,7 +5,7 @@ const webpack = require("webpack")
 const config = {
   mode: "development",
   devtool: "inline-source-map",
-  entry: "./src",
+  entry: path.resolve(__dirname, "src"),
   target: "node",
   resolve: {
     extensions: [".js", ".ts", ".json"],
