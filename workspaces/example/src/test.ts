@@ -1,10 +1,10 @@
-const { run } = require("lambda-exec")
+import { run } from "lambda-exec"
 
 let response
 
 beforeAll(async () => {
   response = await run({
-    handler: require.resolve("./src/index"),
+    handler: require.resolve("."),
     event: { body: "heart" },
   })
 })
