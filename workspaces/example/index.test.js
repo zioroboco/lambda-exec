@@ -4,7 +4,7 @@ let response
 
 beforeAll(async () => {
   response = await run({
-    project: __dirname,
+    handler: require.resolve("./src/index"),
     event: { body: "heart" },
   })
 })

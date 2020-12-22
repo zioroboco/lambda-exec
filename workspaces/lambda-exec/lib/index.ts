@@ -1,31 +1,20 @@
 import * as execa from "execa"
 import { dir } from "tmp-promise"
 import { build } from "esbuild"
-import { resolve } from "path"
 
-export type Options = Partial<{
+export type Options = {
   event: object
-  project: string
-}>
-
-export const defaultOptions: Required<Options> = {
-  event: {},
-  project: process.cwd(),
+  handler: string
 }
 
-export const run = async (options?: Options) => {
-  const { event, project }: Required<Options> = {
-    ...defaultOptions,
-    ...(options ?? {}),
-  }
-
+export const run = async (options: Options) => {
   const { path: taskdir, cleanup } = await dir({
     prefix: "lambda-exec",
     unsafeCleanup: true,
   })
 
   await build({
-    entryPoints: [resolve(project, "src/index.ts")],
+    entryPoints: [options.handler],
     outdir: taskdir,
     bundle: true,
     sourcemap: "external",
@@ -43,7 +32,7 @@ export const run = async (options?: Options) => {
     "--rm",
     "lambci/lambda:nodejs12.x",
     "index.handler",
-    JSON.stringify(event),
+    JSON.stringify(options.event),
   ]
 
   const result = await execa("docker", args, { cwd: taskdir })
