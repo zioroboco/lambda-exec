@@ -1,31 +1,48 @@
 import * as execa from "execa"
+import { build } from "esbuild"
 import { resolve } from "path"
 
-export type Options = { taskDir: string; event: object }
+export type Options = Partial<{
+  event: object
+  project: string
+}>
 
-export const defaultOptions: Options = {
-  taskDir: process.cwd(),
+export const defaultOptions: Required<Options> = {
   event: {},
+  project: process.cwd(),
 }
 
-export const runSync = (options?: Partial<Options>) => {
-  const { event, taskDir }: Options = {
+export const run = async (options?: Options) => {
+  const { event, project }: Required<Options> = {
     ...defaultOptions,
     ...(options ?? {}),
   }
 
+  const taskdir = resolve(project, "build")
+
+  await build({
+    entryPoints: [resolve(project, "src/index.ts")],
+    outdir: taskdir,
+    bundle: true,
+    sourcemap: "external",
+    platform: "node",
+    target: "node12.14", // matching lambci/lambda:node12.x
+  }).catch(err => {
+    console.error(err)
+    process.exit(1)
+  })
+
   const args = [
     "run",
     "--volume",
-    `${taskDir}:/var/task`,
+    `${taskdir}:/var/task`,
     "--rm",
     "lambci/lambda:nodejs12.x",
     "index.handler",
     JSON.stringify(event),
   ]
 
-  execa.sync("cd", [resolve(__dirname)])
-  const result = execa.sync("echo", args)
+  const result = await execa("echo", args, { cwd: project })
 
   return result
 }

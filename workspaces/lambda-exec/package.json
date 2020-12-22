@@ -4,6 +4,7 @@
   "private": true,
   "main": "./dist",
   "dependencies": {
+    "esbuild": "^0.8.26",
     "execa": "^5.0.0"
   },
   "devDependencies": {
