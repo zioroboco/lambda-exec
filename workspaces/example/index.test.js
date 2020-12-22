@@ -1,24 +1,21 @@
+const { resolve } = require("path")
 const { runSync } = require("lambda-exec")
-const webpack = require("webpack")
+const { build } = require("esbuild")
 
 let result
 
-const compile = () => {
-  return new Promise((resolve, reject) => {
-    const compiler = webpack(require("./webpack.config"))
-    compiler.run((err, stats) => {
-      if (err || stats.hasErrors()) {
-        console.error("💥 ", stats.toString())
-      } else {
-        console.log("🛎 ", stats.toString())
-      }
-      resolve()
-    })
-  })
-}
-
 beforeAll(async () => {
-  await compile()
+  await build({
+    entryPoints: [resolve(__dirname, "src/index.ts")],
+    outfile: resolve(__dirname, "build/index.js"),
+    bundle: true,
+    sourcemap: "external",
+    platform: "node",
+    target: "node12.14", // matching lambci/lambda:node12.x
+  }).catch(err => {
+    console.error(err)
+    process.exit(1)
+  })
 
   result = runSync({ event: { body: "heart" } })
 })
